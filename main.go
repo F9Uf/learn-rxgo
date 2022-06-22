@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math/rand"
+	"time"
 
 	"github.com/reactivex/rxgo/v2"
 )
@@ -22,7 +23,7 @@ func main() {
 
 	obs := rxgo.FromChannel(ch)
 
-	obsAgg := obs.Distinct(distinctUserId).Map(enrichUser).Filter(filterByAge(10)).Count()
+	obsAgg := obs.Distinct(distinctUserId).Map(enrichUser).Filter(filterByAge(18)).Count()
 	count := <-obsAgg.Observe()
 
 	fmt.Println(count.V)
@@ -42,11 +43,13 @@ func fetchUserIds(ch chan rxgo.Item) {
 }
 
 func fetchUserById(id int) (User, error) {
+	s1 := rand.NewSource(time.Now().UnixNano())
+	r1 := rand.New(s1)
 	return User{
 		ID:       id,
 		Name:     fmt.Sprintf("name(%d)", id),
 		LastName: fmt.Sprintf("lastName(%d)", id),
-		Age:      rand.Intn(30) + 10,
+		Age:      r1.Intn(100),
 	}, nil
 }
 
